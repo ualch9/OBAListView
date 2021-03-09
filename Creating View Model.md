@@ -30,7 +30,7 @@ placeholder: drawing of a list of names
 First, we create an OBAListViewItem,
 ```swift
 struct ContactViewModel: OBAListViewItem {
-    var id: String
+    var id: UUID
     var name: String
     var location: String
 
@@ -76,7 +76,9 @@ When the default cell configuration (`OBAListRowConfiguration`) does not provide
 First, create the cell configuration. This is where you define the cell's properties,
 ```swift
 struct ContactContentConfiguration: OBAContentConfiguration {
-    var formatters: Formatters?     // 1
+    // 1
+    var formatters: Formatters?
+
     var name: String
     var location: String
 
@@ -91,7 +93,8 @@ struct ContactContentConfiguration: OBAContentConfiguration {
 
 Second, create the custom cell,
 ```swift
-final class ContactCell: OBAListViewCell {  // 1
+// 1
+final class ContactCell: OBAListViewCell {
     weak var nameLabel: UILabel!
     weak var locationLabel: UILabel!
 

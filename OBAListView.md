@@ -53,7 +53,7 @@ digraph G {
 
 # Getting Started
 
-The following example demostrates the barebones approach to displaying a list of data with a UITableView style.
+The following example demostrates the barebones approach to displaying a list of data with a UITableViewCell style.
 ```swift
 class ViewController: UIViewController, OBAListViewDataSource {
     let names: [String] = [
@@ -87,14 +87,13 @@ class ViewController: UIViewController, OBAListViewDataSource {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        // Tells OBAListView to update the list using the items from `items(:_)`.
+        // 1
         listView.applyData()        
     }
 
     // MARK: - OBAListViewDataSource methods
     func items(for listView: OBAListView) -> [OBAListViewSection] {
-        // OBAListView provides ready-to-use view models for
-        // displaying trival information in a UITableViewCell style.
+        // 2
         let viewModels = names.map { name -> OBAListRowView.DefaultViewModel in
             OBAListRowView.DefaultViewModel(title: name)
         }
@@ -102,3 +101,8 @@ class ViewController: UIViewController, OBAListViewDataSource {
     }
 }
 ```
+
+1. Tells `OBAListView` to update the list from its `dataSource` using the items from `items(:_)`. `applyData()` will update the list based on its diff, as determined by [`UICollectionViewDiffableDataSource`](apple_uicollectionviewdiffabledatasource).
+2. `OBAListView` provides ready-to-use view models for displaying trival information in a `UITableViewCell` style.
+
+[apple_uicollectionviewdiffabledatasource]: https://developer.apple.com/documentation/uikit/uicollectionviewdiffabledatasource
