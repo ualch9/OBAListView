@@ -19,7 +19,7 @@ digraph G {
     contentconfig[label="OBAContentConfiguration"]
     listitem[label="OBAListViewItem"]
     listsection[label="OBAListViewSection"]
-    genericmodel[label="Generic Data Model"]
+    datamodel[label="Data Model"]
     
     listcell:s -> contentconfig:w [style=dashed, dir=back]
     listitem -> contentconfig [style=dashed]
@@ -41,10 +41,10 @@ digraph G {
     
     subgraph cluster_2 {
         inv0[style = invis] 
-        inv0 -> genericmodel [style=invis]
+        inv0 -> datamodel [style=invis]
         inv1[style = invis]
-        genericmodel -> inv1 [style=invis]
-        genericmodel:w -> listitem [constraint=false, style=dashed]
+        datamodel -> inv1 [style=invis]
+        datamodel:w -> listitem [constraint=false, style=dashed]
         label="Model"
         color=green
     }
@@ -59,8 +59,10 @@ class ViewController: UIViewController, OBAListViewDataSource {
     let names: [String] = [
         "Aaron",
         "Alan",
+        "Brian",
+        "Ben",
+        "Edgar",
         "Kathy",
-        "Sarah",
         "Sean"
     ]
 
