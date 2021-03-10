@@ -21,18 +21,17 @@ struct Contact {
 
 # Example
 Let's say we want to display a list of our contacts names,
-```
-placeholder: drawing of a list of names
-```
+
+![](images/creating_view_model/sketch.png)
 
 ## Example A - Default cell configuration
 
-First, we create an OBAListViewItem,
+First, create the view model that conforms to `OBAListViewItem`,
 ```swift
 struct ContactViewModel: OBAListViewItem {
     var id: UUID
     var name: String
-    var location: String
+    var address: String
 
     // 1
     var onSelectAction: OBAListViewAction<ContactViewModel>?
@@ -50,7 +49,7 @@ struct ContactViewModel: OBAListViewItem {
     init(_ contact: Contact) {
         self.id = contact.id
         self.name = contact.name
-        self.location = contact.location
+        self.address = contact.address
     }
  
     // 3
@@ -70,6 +69,13 @@ struct ContactViewModel: OBAListViewItem {
 2. `contentConfiguration` provides the cell configuration, similar to `UIContentConfiguration`. In this example, we are using the ready-to-use `OBAListRowConfiguration` which configures the cell in a `UITableViewCell` style.
 3. `hash(:_)` should be implemented as an identity check. In any given `OBAListView`, each item in the list must have a unique identity. In this example, the identity of `Contact` is determined by its `id` property.
 
+The result should look something like this:
+
+<details>
+    <summary>Click to view screenshot</summary>
+    <img src="images/creating_view_model/example_a.png">
+</details>
+
 ## Example B - Custom cell configuration (simple)
 When the default cell configuration (`OBAListRowConfiguration`) does not provide enough functionality, you can create a custom cell configuration, akin to a subclassing `UICollectionViewCell`.
 
@@ -80,7 +86,7 @@ struct ContactContentConfiguration: OBAContentConfiguration {
     var formatters: Formatters?
 
     var name: String
-    var location: String
+    var address: String
 
     // 2
     var obaContentView: (OBAContentView & ReuseIdentifierProviding).Type {
@@ -96,7 +102,7 @@ Second, create the custom cell,
 // 1
 final class ContactCell: OBAListViewCell {
     weak var nameLabel: UILabel!
-    weak var locationLabel: UILabel!
+    weak var addressLabel: UILabel!
 
     // ... omitted UIView methods ...
 
@@ -104,13 +110,13 @@ final class ContactCell: OBAListViewCell {
     override func apply(_ config: OBAContentConfiguration) {
         guard let config = config as? ContactContentConfiguration else { return } // 3
         nameLabel.text = config.name
-        locationLabel.text = config.location
+        addressLabel.text = config.address
     }
 
     override func prepareForReuse() {
         super.prepareForReuse()
         nameLabel.text = nil
-        locationLabel.text = nil
+        addressLabel.text = nil
     }
 }
 ```
@@ -118,6 +124,31 @@ final class ContactCell: OBAListViewCell {
 1. `OBAListView` requires cells to subclass `OBAListViewCell`. `OBAListViewCell` provides boilerplate implementation for safety and consistency (i.e. `ReuseIdentifier`s based on type name).
 2. `apply(:_)` uses the content configuration's properties to configure the view.
 3. If the matching content configuration isn't the expected configuration, gracefully exit the method without changing the view. You don't need to call `prepareForReuse()` since `OBAListView` will call `prepareForReuse()` before `apply(:_)`.
+
+Third, specify the custom cell type in the view model,
+```swift
+struct ContactViewModel: OBAListViewItem {
+    // ... omitted implemention from Example A ...
+    static var customCellType: OBAListViewCell.Type? {
+        return ContactCell.type
+    }
+}
+```
+
+Finally, you will need to register the custom cell type with `OBAListView` **before** you use it. You can do this with the following helper function,
+
+```swift
+override func viewDidLoad() {
+    // ... omitted ...
+    listView.register(listViewItem: ContactViewModel.self)
+}
+```
+
+The result should look something like this:
+<details>
+    <summary>Click to view screenshot</summary>
+    <img src="images/creating_view_model/example_b.png">
+</details>
 
 ## Example C - Custom cell configuration (with formatters)
 Note: This section requires knowledge of OBAKit's `Formatters` and `Application` classes.
@@ -199,6 +230,13 @@ struct ContactContentConfiguration: OBAContentConfiguration {
 1. You can't have a `lazy` property on an immutable copy, and setting the property during initialization can have a heavy performance hit in large lists. In this example, and in most cases, use a computed property.
 2. `formatters` is an optional, this happens when the engineer does not set the `formatters` property on the parent `OBAListView`.
 
+The result should look something like this:
+<details>
+    <summary>Click to view screenshot</summary>
+    <img src="images/creating_view_model/example_c.png">
+</details>
+
+
 # Other notes
 ## Conforming an existing data structure to OBAListViewItem
 A custom view model should not directly reference its data model,
@@ -211,7 +249,7 @@ struct ContactViewModel: OBAListViewItem {
 or be directly implemented into an existing data structure,
 ```swift
 extension Contact: OBAListViewItem {    // <- Do not do this!!!
-    // ... OBAListViewItem methods ...
+    // ... omitted ...
 }
 ```
 
@@ -219,3 +257,14 @@ The purpose of the view model is to only include data relevant to the specific v
 - If `Contact` was a `struct`, it would be including extranous data.
 - If `Contact` was a `class`, it becomes liable to race conditions.
 - In both cases, performance is not the issue because Swift is copy-on-write, but rather an architectural choice to separate the View Model from the Data Model.
+
+## Custom headers
+Currently, you cannot create custom header views. 
+
+A workaround is to create a custom view model `OBAListViewItem` to hold the header view and provide that as the first item in the section's contents. Make sure to provide a `nil` title to stop the default header from appearing.
+
+```swift
+OBAListViewSection(id: "contacts_section", title: nil, contents: [CustomHeaderViewModel(), contents...])
+```
+
+Note, that you will lose section header features that `OBAListView` provides, such as collapsible headers or sticky headers.
