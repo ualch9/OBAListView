@@ -9,47 +9,7 @@ The motivation for developing OBAListView comes from:
 - Consistant implementation of operating system user-interactive features (i.e. context menus)
 - iOS 13 support (UIContentConfiguration and related is iOS 14+)
 
-## Architecture
-```graphviz
-# use `dot` engine to render.
-digraph G {
-    node[shape=box]
-    listview[label="OBAListView"]
-    listcell[label="OBAListViewCell"]
-    contentconfig[label="OBAContentConfiguration"]
-    listitem[label="OBAListViewItem"]
-    listsection[label="OBAListViewSection"]
-    datamodel[label="Data Model"]
-    
-    listcell:s -> contentconfig:w [style=dashed, dir=back]
-    listitem -> contentconfig [style=dashed]
-
-    subgraph cluster_0 {
-        node [style=filled]
-        listview -> listcell
-        label = "View"
-        color=red
-    }
-    
-    subgraph cluster_1 {
-        node [style=filled]
-        listsection -> listitem
-        contentconfig
-        label = "View Model"
-        color=blue
-    }
-    
-    subgraph cluster_2 {
-        inv0[style = invis] 
-        inv0 -> datamodel [style=invis]
-        inv1[style = invis]
-        datamodel -> inv1 [style=invis]
-        datamodel:w -> listitem [constraint=false, style=dashed]
-        label="Model"
-        color=green
-    }
-}
-```
+![](images/obalistview.png)
 
 # Getting Started
 

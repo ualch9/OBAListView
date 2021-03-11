@@ -159,54 +159,7 @@ In addition, `NSFormatter`s are relatively expensive to initialize and compute, 
 
 The graph below is a high-level overview of the responder chain's relationship to `OBAListView` and its view controller,
 
-```
-# use `dot` engine to render.
-digraph G {
-    graph [rankdir=LR]
-        
-    subgraph cluster_0 {
-        parentvc [
-            label="<f0>class ContactsListViewController: \nUIViewController, \nAppContext | <f1>application | <f2>listView | <f3> | <f4> viewDidLoad(:_)"
-            shape=record
-        ]
-        
-        listview [
-            label="<f0>class OBAListView: UICollectionView | <f1>formatters?"
-            shape=record
-        ]
-        
-        
-        parentvc:f2 -> listview:f0:n
-        parentvc:f4 -> listview:f1 [label="sets to application.formatters"]
-        
-        label="Initialization"
-        color=blue
-        style=dashed
-    }
-    
-    subgraph cluster_1 {
-        operatingsystem [label="iOS/Catalyst"]
-        app [label="UIApplication"]
-        
-        obaapplication [
-            label="<f0>OBAApplication | <f1>formatters"
-            shape=record
-        ]
-        
-        operatingsystem -> app [label="notifies"]
-        app -> obaapplication:f1 [label="notifies"]
-        
-        // app:n -> parentvc:f0 [label="notifies"]
-        
-        label="User changes a setting\n(e.g. font size)"
-        color=red
-        style=dashed
-    }
-    
-    parentvc:f1 -> obaapplication:f0 [style=dashed]
-    obaapplication:f1->listview:f1 [style=dashed]
-}
-```
+![](images/creating_view_model/viewmodel_formatters.png)
 
 ```swift
 struct ContactContentConfiguration: OBAContentConfiguration {
