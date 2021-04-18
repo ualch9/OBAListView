@@ -208,8 +208,8 @@ extension Contact: OBAListViewItem {    // <- Do not do this!!!
 
 The purpose of the view model is to only include data relevant to the specific view:
 - If `Contact` was a `struct`, it would be including extranous data.
-- If `Contact` was a `class`, it becomes liable to race conditions.
-- In both cases, performance is not the issue because Swift is copy-on-write, but rather an architectural choice to separate the View Model from the Data Model.
+- If `Contact` was a `class`, it becomes liable to race conditions and increases reference count, thereby reducing performance (https://developer.apple.com/wwdc16/416?time=505).
+- In both cases, performance is not the primary issue, but rather an architectural choice to separate the View Model from the Data Model.
 
 ## Custom headers
 Currently, you cannot create custom header views. 
